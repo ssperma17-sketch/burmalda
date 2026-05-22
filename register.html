@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+<div class="auth-wrap">
+<div class="auth-card">
+  <h1>Регистрация</h1>
+  <div class="alert" id="errMsg" style="display:none"></div>
+  <div class="success" id="okMsg" style="display:none"></div>
+  <label>Имя</label>
+  <input type="text" id="name" placeholder="Иван Иванов">
+  <label>Email</label>
+  <input type="email" id="email" placeholder="ivan@example.com">
+  <label>Пароль</label>
+  <input type="password" id="password" placeholder="Минимум 6 символов">
+  <div class="checkbox-row">
+    <input type="checkbox" id="agree">
+    <label for="agree" style="margin:0">Я согласен с <button class="link-button" type="button" onclick="document.getElementById('agreementModal').classList.remove('hidden')">пользовательским соглашением</button></label>
+  </div>
+  <button class="btn btn-primary" onclick="doRegister()">Зарегистрироваться</button>
+  <p style="margin-top:14px">Уже есть аккаунт? <a href="login.html">Войти</a></p>
+</div>
+</div>
+</main>
+<footer class="footer">
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+
+<!-- Модалка соглашения -->
+<div class="modal hidden" id="agreementModal">
+  <div class="modal-card">
+    <button class="modal-close" type="button" onclick="document.getElementById('agreementModal').classList.add('hidden')">&times;</button>
+    <h2>Пользовательское соглашение</h2>
+    <p>Регистрируясь на сайте, пользователь подтверждает корректность введённых данных, соглашается с правилами обработки персональных данных и принимает условия использования сервиса.</p>
+    <p>Магазин использует сведения пользователя только для оформления заказа, обратной связи и доставки. В демонстрационной версии данные карты не списываются и используются только как пример интерфейса.</p>
+    <p>Пользователь обязуется не передавать свои данные входа третьим лицам и использовать сайт только в законных целях.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('agreementModal').classList.add('hidden')">Закрыть</button>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  updateCartBadge();
+
+  function doRegister() {
+    const name  = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const pass  = document.getElementById('password').value;
+    const agree = document.getElementById('agree').checked;
+    const err   = document.getElementById('errMsg');
+    const ok    = document.getElementById('okMsg');
+    err.style.display = 'none'; ok.style.display = 'none';
+
+    if (!name || !email || !pass) { err.textContent = 'Заполните все поля.'; err.style.display = ''; return; }
+    if (pass.length < 6) { err.textContent = 'Пароль должен быть не менее 6 символов.'; err.style.display = ''; return; }
+    if (!agree) { err.textContent = 'Примите пользовательское соглашение.'; err.style.display = ''; return; }
+
+    const users = JSON.parse(localStorage.getItem('burmalda_users') || '[]');
+    if (users.find(u => u.email === email)) {
+      err.textContent = 'Пользователь с таким email уже существует.'; err.style.display = ''; return;
+    }
+    users.push({ name, email, password: pass, role: 'user' });
+    localStorage.setItem('burmalda_users', JSON.stringify(users));
+    ok.textContent = 'Аккаунт создан! Перенаправляем...';
+    ok.style.display = '';
+    // Авто-логин
+    localStorage.setItem('burmalda_session', JSON.stringify({ email, name, role: 'user' }));
+    setTimeout(() => window.location.href = 'account.html', 1200);
+  }
+</script>
+</body>
+</html>

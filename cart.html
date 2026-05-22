@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+<main class="main">
+<div class="auth-wrap">
+<div class="auth-card cart-card">
+  <h1>Корзина</h1>
+  <div id="cartContent"></div>
+</div>
+</div>
+</main>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><div class="footer-brand">БУРМАЛДА=ЕДА</div></div>
+    <div><div class="footer-title">Покупателям</div><a href="categories.html">Каталог</a></div>
+    <div><div class="footer-title">Магазин</div><p>+7 (900) 000-00-00</p></div>
+  </div>
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  function renderCart() {
+    updateCartBadge();
+    const cart = getCart();
+    const wrap = document.getElementById('cartContent');
+    if (!cart.length) {
+      wrap.innerHTML = '<p>Корзина пуста. <a href="categories.html">Перейти в каталог</a></p>';
+      return;
+    }
+    const rows = cart.map(item => {
+      const p = getProduct(item.id);
+      if (!p) return '';
+      return `
+      <div class="cart-item" data-cart-item data-id="${p.id}">
+        <img src="${e(p.image || 'uploads/placeholder.svg')}" alt="${e(p.name)}">
+        <div class="cart-item-info">
+          <strong><a href="product.html?id=${p.id}">${e(p.name)}</a></strong>
+          <span>${money(p.price)} за шт.</span>
+          <div class="qty-inline cart-qty-form" style="margin-top:6px">
+            <button class="qty-btn" onclick="changeItem(${p.id},-1)">−</button>
+            <input class="qty-input no-spinner" type="number" value="${item.qty}" min="1" id="qty_${p.id}" onchange="setItem(${p.id},this.value)">
+            <button class="qty-btn" onclick="changeItem(${p.id},1)">+</button>
+          </div>
+        </div>
+        <div style="text-align:right;display:grid;gap:8px">
+          <strong data-line-total="${p.id}">${money(p.price * item.qty)}</strong>
+          <button class="btn btn-danger small" onclick="delItem(${p.id})">Удалить</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <div class="cart-list">${rows}</div>
+      <div class="cart-total">Итого: <strong id="cartGrandTotal">${money(cartTotal())}</strong></div>
+      <a class="btn btn-primary" href="checkout.html" style="width:auto;display:inline-flex">Оформить заказ</a>
+      <a class="btn btn-secondary" href="categories.html" style="margin-left:10px;display:inline-flex">Продолжить покупки</a>
+    `;
+  }
+
+  function changeItem(id, delta) {
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if (item) { item.qty = Math.max(1, item.qty + delta); saveCart(cart); }
+    renderCart();
+  }
+
+  function setItem(id, val) {
+    setCartQty(id, parseInt(val) || 1);
+    renderCart();
+  }
+
+  function delItem(id) {
+    removeFromCart(id);
+    renderCart();
+  }
+
+  renderCart();
+</script>
+</body>
+</html>

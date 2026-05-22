@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админка — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="admin.html">Админка</a>
+      <a href="account.html">Кабинет</a>
+      <a href="#" onclick="logout()">Выход</a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+<div class="container page-block">
+  <h1>Панель администратора</h1>
+  <p class="muted-note">Статичная демо-версия. Изменения сохраняются только до перезагрузки страницы.</p>
+  <div id="adminWrap"></div>
+</div>
+</main>
+<footer class="footer">
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  const session = JSON.parse(localStorage.getItem('burmalda_session') || 'null');
+  const wrap = document.getElementById('adminWrap');
+
+  if (!session || session.role !== 'admin') {
+    wrap.innerHTML = '<div class="alert">Доступ запрещён. <a href="login.html">Войти как администратор</a><br><span class="muted-note">Демо: admin@burmalda.local / admin12345</span></div>';
+  } else {
+    const orders = JSON.parse(localStorage.getItem('burmalda_orders') || '[]');
+    const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+    const moneyFmt = v => new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2}).format(v) + ' ₽';
+
+    const productRows = PRODUCTS.map(p => `
+      <div class="admin-product-row">
+        <img src="${e(p.image)}" alt="${e(p.name)}">
+        <div>
+          <strong>${e(p.name)}</strong><br>
+          <span class="muted-note">${moneyFmt(p.price)} &nbsp; Остаток: ${p.stock} шт. &nbsp; ${p.active ? '✅ Активен' : '❌ Скрыт'}</span>
+        </div>
+        <div class="admin-actions">
+          <span class="muted-note" style="font-size:12px">ID: ${p.id}</span>
+        </div>
+      </div>`).join('');
+
+    const orderRows = orders.length
+      ? orders.slice().reverse().map(o => `
+          <div class="order-row">
+            <strong>Заказ №${o.id}</strong> — ${o.date}<br>
+            Покупатель: ${e(o.name || '—')} (${e(o.phone || '—')})<br>
+            Адрес: ${e(o.address || '—')}<br>
+            Товаров: ${o.items?.length || 0} &nbsp; Сумма: <strong>${moneyFmt(o.total)}</strong>
+            <div class="status-form" style="margin-top:8px">
+              <select onchange="setStatus(${o.id}, this.value)">
+                ${['Принят','Готовится','В пути','Доставлен','Отменён'].map(s =>
+                  `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>`).join('')
+      : '<p>Заказов нет.</p>';
+
+    wrap.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><div>Товаров</div><strong>${PRODUCTS.length}</strong></div>
+        <div class="stat-card"><div>Категорий</div><strong>${CATEGORIES.length}</strong></div>
+        <div class="stat-card"><div>Заказов</div><strong>${orders.length}</strong></div>
+        <div class="stat-card"><div>Выручка</div><strong style="font-size:20px">${moneyFmt(totalRevenue)}</strong></div>
+      </div>
+      <div class="admin-card" style="margin-bottom:20px">
+        <h2>Товары (${PRODUCTS.length})</h2>
+        <div class="admin-products">${productRows}</div>
+        <p class="muted-note" style="margin-top:12px">Для добавления и редактирования товаров — измени массив PRODUCTS в файле assets/js/data.js</p>
+      </div>
+      <div class="admin-card orders-admin-card">
+        <h2>Заказы (${orders.length})</h2>
+        <div class="orders-list">${orderRows}</div>
+      </div>
+    `;
+  }
+
+  function setStatus(orderId, status) {
+    const orders = JSON.parse(localStorage.getItem('burmalda_orders') || '[]');
+    const order = orders.find(o => o.id === orderId);
+    if (order) { order.status = status; localStorage.setItem('burmalda_orders', JSON.stringify(orders)); }
+  }
+
+  function logout() {
+    localStorage.removeItem('burmalda_session');
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

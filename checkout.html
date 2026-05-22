@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оформление заказа — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+<main class="main">
+<div class="auth-wrap">
+<div class="auth-card checkout-card">
+  <h1>Оформление заказа</h1>
+  <div id="checkoutWrap"></div>
+</div>
+</div>
+</main>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><div class="footer-brand">БУРМАЛДА=ЕДА</div></div>
+    <div><div class="footer-title">Покупателям</div><a href="categories.html">Каталог</a></div>
+    <div><div class="footer-title">Магазин</div><p>+7 (900) 000-00-00</p></div>
+  </div>
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  const wrap = document.getElementById('checkoutWrap');
+  const cart = getCart();
+
+  if (!cart.length) {
+    wrap.innerHTML = '<div class="alert">Корзина пуста. <a href="categories.html">Перейти в каталог</a></div>';
+  } else {
+    const rows = cart.map(item => {
+      const p = getProduct(item.id);
+      if (!p) return '';
+      return `<div class="order-row"><strong>${e(p.name)}</strong> × ${item.qty} — ${money(p.price * item.qty)}</div>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <div class="orders-list" style="margin-bottom:16px">${rows}</div>
+      <div class="cart-total">Итого: <strong>${money(cartTotal())}</strong></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+      <div class="two-cols">
+        <div>
+          <label>Имя</label>
+          <input type="text" id="fName" placeholder="Иван Иванов" required>
+        </div>
+        <div>
+          <label>Телефон</label>
+          <input type="tel" id="fPhone" placeholder="+7 (900) 000-00-00" required>
+        </div>
+      </div>
+      <label>Адрес доставки</label>
+      <input type="text" id="fAddress" placeholder="ул. Пушкина, д. 10, кв. 5" required>
+      <label>Комментарий к заказу</label>
+      <textarea id="fComment" rows="3" placeholder="Не звонить в дверь, оставить у двери..."></textarea>
+      <label>Способ оплаты</label>
+      <select id="paymentMethodSelect" onchange="syncPayment()">
+        <option value="cash">Наличными при получении</option>
+        <option value="online">Онлайн картой</option>
+      </select>
+      <div id="cardPaymentBox" class="card-demo-box hidden">
+        <label>Номер карты</label>
+        <input type="text" id="cardNumberInput" placeholder="0000 0000 0000 0000" maxlength="19">
+        <div class="two-cols">
+          <div>
+            <label>Срок действия</label>
+            <input type="text" id="cardExpiryInput" placeholder="MM/ГГ" maxlength="5">
+          </div>
+          <div>
+            <label>CVV</label>
+            <input type="text" id="cardCvvInput" placeholder="123" maxlength="3">
+          </div>
+        </div>
+        <p class="muted-note" style="margin-top:8px">⚠️ Демо-режим: данные карты не списываются.</p>
+      </div>
+      <div id="receivePaymentBox" class="card-demo-box" style="margin-top:14px">
+        <strong>💵 Оплата при получении</strong>
+        <p class="muted-note">Приготовьте нужную сумму: ${money(cartTotal())}</p>
+      </div>
+      <button class="btn btn-primary" onclick="placeOrder()" style="margin-top:20px">Подтвердить заказ</button>
+    `;
+  }
+
+  updateCartBadge();
+
+  function syncPayment() {
+    const sel = document.getElementById('paymentMethodSelect');
+    document.getElementById('cardPaymentBox').classList.toggle('hidden', sel.value !== 'online');
+    document.getElementById('receivePaymentBox').classList.toggle('hidden', sel.value === 'online');
+  }
+
+  function placeOrder() {
+    const name = document.getElementById('fName')?.value.trim();
+    const phone = document.getElementById('fPhone')?.value.trim();
+    const address = document.getElementById('fAddress')?.value.trim();
+    if (!name || !phone || !address) {
+      alert('Пожалуйста, заполните имя, телефон и адрес.');
+      return;
+    }
+    // Сохраняем заказ в localStorage
+    const orders = JSON.parse(localStorage.getItem('burmalda_orders') || '[]');
+    const order = {
+      id: Date.now(),
+      date: new Date().toLocaleString('ru-RU'),
+      name, phone, address,
+      items: getCart().map(i => {
+        const p = getProduct(i.id);
+        return { name: p?.name, qty: i.qty, price: p?.price };
+      }),
+      total: cartTotal(),
+      status: 'Принят'
+    };
+    orders.push(order);
+    localStorage.setItem('burmalda_orders', JSON.stringify(orders));
+    // Очищаем корзину
+    localStorage.removeItem('burmalda_cart');
+    // Перенаправляем
+    window.location.href = 'order_success.html?id=' + order.id;
+  }
+</script>
+</body>
+</html>

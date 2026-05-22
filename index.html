@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+
+<!-- ШАПКА -->
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<main class="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-card">
+      <div class="hero-content">
+        <div class="pill">Интернет-магазин продуктов</div>
+        <h1>Свежие продукты для вашего дома</h1>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="categories.html">Смотреть товары</a>
+          <a class="btn btn-secondary" href="register.html">Создать аккаунт</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ГЛАВНЫЙ БЛОК -->
+<section class="home-shell">
+
+  <!-- Левый баннер -->
+  <div class="ad-column">
+    <div class="ad-banner">
+      <div class="ad-label">Реклама</div>
+      <div class="ad-title">🥕 Свежие овощи каждый день!</div>
+      <div class="ad-text">Доставка от 39 ₽. Первый заказ — бесплатно!</div>
+    </div>
+  </div>
+
+  <!-- Товары -->
+  <section class="main-showcase">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Популярные товары</h2>
+        <a class="link-more" href="categories.html">Весь каталог</a>
+      </div>
+      <div class="product-grid four-grid" id="productGrid">
+        <!-- Заполняется JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Правый баннер -->
+  <div class="ad-column">
+    <div class="ad-banner">
+      <div class="ad-label">Акция</div>
+      <div class="ad-title">🍓 -20% на ягоды!</div>
+      <div class="ad-text">Только до конца недели. Успей заказать!</div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<!-- ФУТЕР -->
+<footer class="footer">
+  <div class="container footer-inner footer-grid">
+    <div>
+      <div class="footer-brand">БУРМАЛДА=ЕДА</div>
+      <p>Свежие продукты с доставкой на дом. Работаем с лучшими поставщиками.</p>
+    </div>
+    <div>
+      <div class="footer-title">Покупателям</div>
+      <a href="categories.html">Каталог</a>
+      <a href="cart.html">Корзина</a>
+      <a href="register.html">Регистрация</a>
+    </div>
+    <div>
+      <div class="footer-title">Магазин</div>
+      <p>Доставка: 9:00–22:00</p>
+      <p>Телефон: +7 (900) 000-00-00</p>
+      <p>Email: info@burmalda.local</p>
+    </div>
+  </div>
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  // Рендер товаров на главной (до 12)
+  const grid = document.getElementById('productGrid');
+  const items = PRODUCTS.filter(p => p.active).slice(0, 12);
+  grid.innerHTML = items.map(p => productCard(p)).join('');
+  updateCartBadge();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ принят — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+<div class="auth-wrap">
+<div class="auth-card" style="text-align:center">
+  <div style="font-size:64px">✅</div>
+  <h1>Заказ оформлен!</h1>
+  <div class="success" id="orderInfo"></div>
+  <p>Мы свяжемся с вами для подтверждения. Спасибо за покупку!</p>
+  <a class="btn btn-primary" href="index.html" style="margin-top:10px">На главную</a>
+  <a class="btn btn-secondary" href="categories.html" style="margin-top:10px;margin-left:10px">Ещё купить</a>
+</div>
+</div>
+</main>
+<footer class="footer">
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  updateCartBadge();
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get('id');
+  const orders = JSON.parse(localStorage.getItem('burmalda_orders') || '[]');
+  const order = orders.find(o => String(o.id) === orderId);
+  const info = document.getElementById('orderInfo');
+  if (order) {
+    info.innerHTML = `Заказ №${order.id} · ${order.date}<br>Сумма: <strong>${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2}).format(order.total)} ₽</strong><br>Адрес: ${order.address}`;
+  } else {
+    info.textContent = 'Заказ оформлен!';
+  }
+</script>
+</body>
+</html>

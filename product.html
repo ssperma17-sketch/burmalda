@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Товар — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+<main class="main">
+<div class="container page-block">
+  <div id="productWrap"></div>
+</div>
+</main>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><div class="footer-brand">БУРМАЛДА=ЕДА</div></div>
+    <div><div class="footer-title">Покупателям</div><a href="categories.html">Каталог</a></div>
+    <div><div class="footer-title">Магазин</div><p>+7 (900) 000-00-00</p></div>
+  </div>
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const id = parseInt(params.get('id'));
+  const p = getProduct(id);
+  const wrap = document.getElementById('productWrap');
+  if (!p) {
+    wrap.innerHTML = '<p>Товар не найден. <a href="categories.html">Вернуться в каталог</a></p>';
+  } else {
+    document.title = p.name + ' — БУРМАЛДА=ЕДА';
+    wrap.innerHTML = `
+      <div class="product-page">
+        <div class="product-page-image">
+          <img src="${e(p.image || 'uploads/placeholder.svg')}" alt="${e(p.name)}">
+        </div>
+        <div class="product-page-info">
+          <div class="product-cat">${e(getCategoryName(p.category_id))}</div>
+          <h1>${e(p.name)}</h1>
+          <p>${e(p.description)}</p>
+          <div class="product-meta">Остаток: ${p.stock} шт.</div>
+          <div class="price-xl">${money(p.price)}</div>
+          <div class="buy-box">
+            <label>Количество:</label>
+            <div class="qty-inline">
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <input class="qty-input no-spinner" id="qtyInput" type="number" value="1" min="1" max="${p.stock}">
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:auto;padding:14px 28px" onclick="addFromPage()">В корзину</button>
+          <a class="btn btn-secondary" style="margin-top:12px;display:inline-flex" href="cart.html">Перейти в корзину</a>
+        </div>
+      </div>
+    `;
+  }
+  updateCartBadge();
+
+  function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    const max = p ? p.stock : 99;
+    input.value = Math.max(1, Math.min(max, parseInt(input.value || '1') + delta));
+  }
+
+  function addFromPage() {
+    const qty = parseInt(document.getElementById('qtyInput').value || '1');
+    addToCart(p.id, qty);
+  }
+</script>
+</body>
+</html>

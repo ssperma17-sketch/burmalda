@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Категория — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+<main class="main">
+<div class="container page-block">
+  <h1 class="section-title" id="catTitle">Категория</h1>
+  <div class="product-grid category-product-grid" id="productGrid"></div>
+</div>
+</main>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><div class="footer-brand">БУРМАЛДА=ЕДА</div></div>
+    <div><div class="footer-title">Покупателям</div><a href="categories.html">Каталог</a></div>
+    <div><div class="footer-title">Магазин</div><p>+7 (900) 000-00-00</p></div>
+  </div>
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const catId = parseInt(params.get('id'));
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (cat) document.getElementById('catTitle').textContent = cat.name;
+  const items = PRODUCTS.filter(p => p.active && p.category_id === catId);
+  document.getElementById('productGrid').innerHTML = items.length
+    ? items.map(p => productCard(p)).join('')
+    : '<p>Товаров в этой категории пока нет.</p>';
+  updateCartBadge();
+</script>
+</body>
+</html>

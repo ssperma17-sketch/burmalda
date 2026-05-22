@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Личный кабинет — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="account.html">Личный кабинет</a>
+      <a href="#" onclick="logout()">Выход</a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+<div class="container page-block">
+  <h1>Личный кабинет</h1>
+  <div id="accountWrap"></div>
+</div>
+</main>
+<footer class="footer">
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  updateCartBadge();
+  const session = JSON.parse(localStorage.getItem('burmalda_session') || 'null');
+  const wrap = document.getElementById('accountWrap');
+
+  if (!session) {
+    wrap.innerHTML = '<div class="alert">Вы не авторизованы. <a href="login.html">Войти</a></div>';
+  } else {
+    const orders = JSON.parse(localStorage.getItem('burmalda_orders') || '[]');
+    const moneyFmt = v => new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2}).format(v) + ' ₽';
+
+    const orderRows = orders.length
+      ? orders.slice().reverse().map(o => `
+          <div class="order-row">
+            <strong>Заказ №${o.id}</strong> — ${o.date}<br>
+            Адрес: ${o.address || '—'}<br>
+            Сумма: <strong>${moneyFmt(o.total)}</strong> &nbsp; Статус: <span>${o.status || 'Принят'}</span>
+          </div>`).join('')
+      : '<p>Заказов пока нет.</p>';
+
+    wrap.innerHTML = `
+      <div class="account-grid">
+        <div class="account-card">
+          <h2>Данные аккаунта</h2>
+          <p><strong>Имя:</strong> ${e(session.name)}</p>
+          <p><strong>Email:</strong> ${e(session.email)}</p>
+          <p><strong>Роль:</strong> ${session.role === 'admin' ? 'Администратор' : 'Покупатель'}</p>
+          <button class="btn btn-danger" style="width:auto;margin-top:16px" onclick="logout()">Выйти из аккаунта</button>
+          ${session.role === 'admin' ? '<br><a class="btn btn-secondary" style="margin-top:10px;display:inline-flex" href="admin.html">Перейти в админку</a>' : ''}
+        </div>
+        <div class="account-card">
+          <h2>Мои заказы</h2>
+          <div class="orders-list">${orderRows}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function logout() {
+    localStorage.removeItem('burmalda_session');
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

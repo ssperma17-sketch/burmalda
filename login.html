@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — БУРМАЛДА=ЕДА</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html">БУРМАЛДА=ЕДА</a>
+    <nav class="nav">
+      <a href="index.html">Главная</a>
+      <a href="categories.html">Категории</a>
+      <a href="cart.html">Корзина <span class="badge" id="cartBadge">0</span></a>
+      <a href="login.html">Вход</a>
+      <a href="register.html">Регистрация</a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+<div class="auth-wrap">
+<div class="auth-card">
+  <h1>Вход</h1>
+  <div class="alert" id="errMsg" style="display:none"></div>
+  <label>Email</label>
+  <input type="email" id="email" placeholder="user@example.com">
+  <label>Пароль</label>
+  <input type="password" id="password" placeholder="••••••••">
+  <button class="btn btn-primary" onclick="doLogin()">Войти</button>
+  <p style="margin-top:14px">Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+  <p class="muted-note">Демо: user@burmalda.local / user12345</p>
+</div>
+</div>
+</main>
+<footer class="footer">
+  <div><center><p>© 2026 БУРМАЛДА=ЕДА</p></center></div>
+</footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cart.js"></script>
+<script>
+  updateCartBadge();
+
+  const DEMO_USERS = [
+    { email: 'admin@burmalda.local', password: 'admin12345', name: 'Администратор', role: 'admin' },
+    { email: 'user@burmalda.local',  password: 'user12345',  name: 'Пользователь', role: 'user' },
+  ];
+
+  function doLogin() {
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const pass  = document.getElementById('password').value;
+    // Проверяем демо-пользователей
+    let user = DEMO_USERS.find(u => u.email === email && u.password === pass);
+    // Проверяем зарегистрированных
+    if (!user) {
+      const registered = JSON.parse(localStorage.getItem('burmalda_users') || '[]');
+      user = registered.find(u => u.email === email && u.password === pass);
+    }
+    if (!user) {
+      const err = document.getElementById('errMsg');
+      err.textContent = 'Неверный email или пароль.';
+      err.style.display = '';
+      return;
+    }
+    localStorage.setItem('burmalda_session', JSON.stringify({ email: user.email, name: user.name, role: user.role || 'user' }));
+    window.location.href = 'account.html';
+  }
+</script>
+</body>
+</html>
